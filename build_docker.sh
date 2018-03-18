@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Build the Docker image
 
 # directory for Docker building
@@ -13,13 +11,16 @@ if [ -z $DOCKER_TAG ]; then DOCKER_TAG="${APP_NAME}:${DOCKER_VERSION}"; fi
 # docker installation directory
 INSTALL_DIR=/var/popmedic
 
+echo -e "*> Building docker: ${DOCKER_FILE} with build directory: ${DOCKER_DIR}"
 mkdir -p "${DOCKER_DIR}"
 cp "${APP_PATH}" "${DOCKER_DIR}"
+cp -r "${CERTS_DIR}" "${DOCKER_DIR}/${CERTS_DIR}"
 cp "${DOCKER_FILE}" "${DOCKER_DIR}"
 
 pushd "${DOCKER_DIR}" >> /dev/null
 docker build . \
 -t "${DOCKER_TAG}" \
 --build-arg APP="${APP_NAME}" \
---build-arg APP_DIR="${INSTALL_DIR}" 
+--build-arg INSTALL_DIR="${INSTALL_DIR}" \
+--build-arg CERTS_DIR="${CERTS_DIR}"
 popd >> /dev/null
