@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-
+set -o errexit
 ## Build the project
 
 # artifact directory
 ARTIFACT_DIR="artifact"
 # build directory
 BUILD_DIR="${ARTIFACT_DIR}/build"
-
-set +e
 
 mkdir -p "${BUILD_DIR}"
 

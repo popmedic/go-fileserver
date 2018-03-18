@@ -8,5 +8,5 @@ RUN mkdir -p "${APP_DIR}"
 COPY "${APP}" "${APP_PATH}"
 RUN chmod guo+x "${APP_PATH}"
 RUN ln -s "${APP_PATH}" "/usr/local/bin/go-fileserver" 
-
+COPY foobar crap
 ENTRYPOINT [ "/usr/local/bin/go-fileserver" ]
