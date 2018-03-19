@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 set -o errexit
 ## Build the project
-
-# application name
-APP_NAME="go-fileserver"
+# test first!
+source test.sh
 # artifact directory
 ARTIFACT_DIR="artifact"
 # build directory
 BUILD_DIR="${ARTIFACT_DIR}/build"
+# go build environments
+GOOS=linux 
+GOARCH=amd64 
 
 mkdir -p "${BUILD_DIR}"
 
