@@ -13,5 +13,7 @@ mkdir -p "${BUILD_DIR}"
 
 echo "*> Building ${APP_NAME}"
 source create_certs.sh
+source gen_swagger_svr.sh
 source build_fileserver.sh
 source build_docker.sh
+echo "*> *** Build successful ***"

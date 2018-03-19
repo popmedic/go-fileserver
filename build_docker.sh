@@ -15,6 +15,7 @@ echo -e "*> Building docker: ${DOCKER_FILE} with build directory: ${DOCKER_DIR}"
 mkdir -p "${DOCKER_DIR}"
 cp "${APP_PATH}" "${DOCKER_DIR}"
 cp -r "${CERTS_DIR}" "${DOCKER_DIR}/${CERTS_DIR}"
+cp -r "${SWAGGER_DIR}" "${DOCKER_DIR}/${SWAGGER_DIR}"
 cp "${DOCKER_FILE}" "${DOCKER_DIR}"
 
 pushd "${DOCKER_DIR}" >> /dev/null
@@ -22,5 +23,6 @@ docker build . \
 -t "${DOCKER_TAG}" \
 --build-arg APP="${APP_NAME}" \
 --build-arg INSTALL_DIR="${INSTALL_DIR}" \
---build-arg CERTS_DIR="${CERTS_DIR}"
+--build-arg CERTS_DIR="${CERTS_DIR}" \
+--build-arg SWAGGER_DIR="${SWAGGER_DIR}"
 popd >> /dev/null
