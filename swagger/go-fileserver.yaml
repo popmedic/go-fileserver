@@ -1,0 +1,109 @@
+openapi: "3.0.0"
+info:
+  description: "A fileserver API"
+  version: "0.0.1"
+  title: "go-fileserver"
+servers:
+  - url: "{scheme}://{host}:{port}/v1"
+    variables:
+      scheme:
+        default: "https"
+      host:
+        default: "localhost"
+      port:
+        default: "8443"
+paths:
+  /{path}:
+    get:
+      tags:
+        - "path"
+      summary: "List the contents of a directory or retrieve file"
+      parameters:
+        - name: "path"
+          in: "path"
+          description: "Directory to list or file to return"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        401:
+          description: "unauthorized"
+        404:
+          description: "path not found"
+      security:
+        - bearerAuth: []
+  /authorize:
+    get:
+      tags:
+        - "auth"
+      summary: "List all pending authorizations"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+        403:
+          description: "Unauthorized for request"
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - "auth"
+      summary: "Requests authorization"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                key:
+                  type: "string"
+      responses:
+        202:
+          description: "successful operation, request will be processed later"
+    put:
+      tags:
+        - "auth"
+      summary: "Activiate a pending authorization"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                key:
+                  type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        403:
+          description: "Unauthorized for request"
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - "auth"
+      summary: "Delete an authorization (pending or allowed)"
+      parameters:
+        - in: "query"
+          name: "id"
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        403:
+          description: "Unauthorized for request"
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
