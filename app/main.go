@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/popmedic/go-logger/log"
 )
 
 var certPath string
@@ -38,31 +39,27 @@ func init() {
 	)
 }
 
+func mustReadFile(path string) []byte {
+	b, e := ioutil.ReadFile(path)
+	if nil != e {
+		log.Fatal(os.Exit, e)
+	}
+	return b
+}
+
 func main() {
 	flag.Parse()
 
-	fmt.Println("Cert path:", certPath)
-	fmt.Println("Private key path:", keyPath)
-	fmt.Println("Swagger path:", swaggerPath)
+	log.Info("Cert path:", certPath)
+	log.Info("Private key path:", keyPath)
+	log.Info("Swagger path:", swaggerPath)
 
-	b, e := ioutil.ReadFile(certPath)
-	if nil != e {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-	fmt.Println("Cert:\n", string(b))
+	b := mustReadFile(certPath)
+	log.Debug("Cert:\n", string(b))
 
-	b, e = ioutil.ReadFile(keyPath)
-	if nil != e {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-	fmt.Println("Key:\n", string(b))
+	b = mustReadFile(keyPath)
+	log.Debug("Key:\n", string(b))
 
-	b, e = ioutil.ReadFile(swaggerPath)
-	if nil != e {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-	fmt.Println("Swagger:\n", string(b))
+	b = mustReadFile(swaggerPath)
+	log.Debug("Swagger:\n", string(b))
 }
