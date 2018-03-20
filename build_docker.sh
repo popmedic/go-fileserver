@@ -22,7 +22,6 @@ cp "${DOCKER_FILE}" "${DOCKER_DIR}"
 
 pushd "${DOCKER_DIR}" >> /dev/null
 docker build . \
---no-cache \
 -t "${DOCKER_TAG}" \
 --build-arg APP="${APP_NAME}" \
 --build-arg INSTALL_DIR="${INSTALL_DIR}" \

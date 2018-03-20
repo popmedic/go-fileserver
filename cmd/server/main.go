@@ -51,5 +51,8 @@ func main() {
 	flag.Parse()
 
 	ctx := context.NewContext(keyPath, certPath, specPath, configPath, os.Exit)
-	server.Run(ctx)
+	err := server.Run(ctx)
+	if err != nil {
+		log.Fatal(ctx.Exit, "ListenAndServe: ", err)
+	}
 }
