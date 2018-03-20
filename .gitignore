@@ -37,3 +37,6 @@ artifact/
 
 ### Certs ###
 certs/
+
+### Configuration ###
+config.json

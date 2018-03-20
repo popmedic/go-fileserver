@@ -13,6 +13,7 @@ import (
 var certPath string
 var keyPath string
 var specPath string
+var configPath string
 
 func init() {
 	d, e := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -38,15 +39,17 @@ func init() {
 		filepath.Join(d, "swagger", "go-fileserver.yaml"),
 		"path to the swagger spec yaml file",
 	)
+	flag.StringVar(
+		&configPath,
+		"config_path",
+		filepath.Join(d, "config.json"),
+		"path to the config json file",
+	)
 }
 
 func main() {
 	flag.Parse()
 
-	log.Info("Cert path:", certPath)
-	log.Info("Private key path:", keyPath)
-	log.Info("Swagger spec path:", specPath)
-
-	ctx := context.NewContext(keyPath, certPath, specPath, os.Exit)
+	ctx := context.NewContext(keyPath, certPath, specPath, configPath, os.Exit)
 	server.Run(ctx)
 }

@@ -7,4 +7,4 @@ APP_NAME="go-fileserver"
 
 echo -e "**> Testing ${APP_NAME}"
 
-source test_fileserver.sh
+go test ./... -cover
