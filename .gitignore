@@ -40,3 +40,5 @@ certs/
 
 ### Configuration ###
 config.json
+*.json.staged
+.codegen

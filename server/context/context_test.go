@@ -16,8 +16,10 @@ import (
 var path string
 
 const (
-	jsonPath    = "test_data/config.json"
-	badJSONPath = "test_data/config-bad.json"
+	jsonPath     = "test_data/config.json"
+	usersPath    = "test_data/users.json"
+	badJSONPath  = "test_data/config-bad.json"
+	badUsersPath = "test_data/users-bad.json"
 )
 
 func TestSetup(t *testing.T) {
@@ -49,6 +51,7 @@ func TestNewContextFailure(t *testing.T) {
 			paths[1],
 			paths[2],
 			jsonPath,
+			usersPath,
 			exitFunc,
 		)
 		if !success {
@@ -74,7 +77,7 @@ func TestNewContextConfigDefaultOpenFile(t *testing.T) {
 		success = true
 	}
 
-	c := NewContext(path, path, path, "*", exitFunc)
+	c := NewContext(path, path, path, "*", usersPath, exitFunc)
 	if !isDefault(c.Config) {
 		t.Error("config should be default", c.Config)
 	}
@@ -90,9 +93,26 @@ func TestNewContextConfigFailureReadJSON(t *testing.T) {
 	defer func(p string) {
 		_ = os.Remove(p)
 	}(badJSONPath)
-	c := NewContext(path, path, path, badJSONPath, exitFunc)
+	c := NewContext(path, path, path, badJSONPath, usersPath, exitFunc)
 	if !isDefault(c.Config) {
 		t.Error("config should be default", c.Config)
+	}
+}
+
+func TestNewContextConfigFailureReadUsers(t *testing.T) {
+	success := false
+	exitCode := 0
+	exitFunc := func(i int) {
+		exitCode = i
+		success = true
+	}
+	createBadJSONFile(jsonPath, badUsersPath, t)
+	defer func(p string) {
+		_ = os.Remove(p)
+	}(badUsersPath)
+	c := NewContext(path, path, path, jsonPath, badUsersPath, exitFunc)
+	if c.Users.Get(defaultKey) != defaultClaim {
+		t.Errorf("should have created default user %q at level %d", defaultKey, defaultClaim)
 	}
 }
 
@@ -101,7 +121,7 @@ func TestNewContext(t *testing.T) {
 		t.Error("should not have failed:", path)
 	}
 
-	_ = NewContext(path, path, path, jsonPath, exitFunc)
+	_ = NewContext(path, path, path, jsonPath, usersPath, exitFunc)
 }
 
 func createBadJSONFile(src, dest string, t *testing.T) {
