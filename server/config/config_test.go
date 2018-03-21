@@ -50,7 +50,7 @@ func TestConfig(t *testing.T) {
 	c := NewConfig()
 	// error testing
 	for _, r := range tt {
-		if got := c.GetParamDefault(r.key, "def"); got != "def" {
+		if got := c.GetParam(r.key); got != "" {
 			t.Errorf("for key %q, expected %q, got %q", r.key, "", got)
 		}
 	}
@@ -60,7 +60,7 @@ func TestConfig(t *testing.T) {
 	}
 	// test all where set
 	for _, r := range tt {
-		if got := c.GetParamDefault(r.key, "def"); got != r.val {
+		if got := c.GetParam(r.key); got != r.val {
 			t.Errorf("for key %q, expected %q, got %q", r.key, r.val, got)
 		}
 	}

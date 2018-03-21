@@ -14,6 +14,7 @@ var certPath string
 var keyPath string
 var specPath string
 var configPath string
+var usersPath string
 
 func init() {
 	d, e := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -45,13 +46,20 @@ func init() {
 		filepath.Join(d, "config.json"),
 		"path to the config json file",
 	)
+	flag.StringVar(
+		&usersPath,
+		"users_path",
+		filepath.Join(d, "users.json"),
+		"path to the users json file",
+	)
 }
 
 func main() {
 	flag.Parse()
 
-	ctx := context.NewContext(keyPath, certPath, specPath, configPath, os.Exit)
-	err := server.Run(ctx)
+	ctx := context.NewContext(keyPath, certPath, specPath, configPath, usersPath, os.Exit)
+	s := server.NewServer(ctx)
+	err := s.Run()
 	if err != nil {
 		log.Fatal(ctx.Exit, "ListenAndServe: ", err)
 	}
