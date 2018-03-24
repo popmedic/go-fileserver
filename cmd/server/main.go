@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -16,6 +17,7 @@ var specPath string
 var configPath string
 var usersPath string
 var exposePath string
+var verbose bool
 
 func init() {
 	d, e := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -59,11 +61,20 @@ func init() {
 		filepath.Join(d, "expose"),
 		"path to expose",
 	)
+	flag.BoolVar(
+		&verbose,
+		"verbose",
+		false,
+		"if set will log debug statements",
+	)
 }
 
 func main() {
 	flag.Parse()
 
+	if !verbose {
+		log.GetDebug().SetWriter(ioutil.Discard)
+	}
 	ctx := context.NewContext(keyPath, certPath, specPath, configPath, usersPath, exposePath, os.Exit)
 	s := server.NewServer(ctx)
 	err := s.Run()
