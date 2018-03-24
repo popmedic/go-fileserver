@@ -15,6 +15,7 @@ var keyPath string
 var specPath string
 var configPath string
 var usersPath string
+var exposePath string
 
 func init() {
 	d, e := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -52,12 +53,18 @@ func init() {
 		filepath.Join(d, "users.json"),
 		"path to the users json file",
 	)
+	flag.StringVar(
+		&exposePath,
+		"expose_path",
+		filepath.Join(d, "expose"),
+		"path to expose",
+	)
 }
 
 func main() {
 	flag.Parse()
 
-	ctx := context.NewContext(keyPath, certPath, specPath, configPath, usersPath, os.Exit)
+	ctx := context.NewContext(keyPath, certPath, specPath, configPath, usersPath, exposePath, os.Exit)
 	s := server.NewServer(ctx)
 	err := s.Run()
 	if err != nil {

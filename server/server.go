@@ -32,7 +32,7 @@ func NewServer(ctx *context.Context) *Server {
 	s.acl = map[string]string{
 		"*":           "1",
 		"get/auth":    "2",
-		"post/auth":   "0",
+		"post/auth":   "",
 		"put/auth":    "2",
 		"delete/auth": "2",
 	}
@@ -64,7 +64,7 @@ func NewServer(ctx *context.Context) *Server {
 }
 
 func (svr *Server) getPathHandler(w http.ResponseWriter, r *http.Request) {
-	f, err := os.Open(r.URL.Path)
+	f, err := os.Open(svr.ctx.PrependExposed(r.URL.Path))
 	if nil != err {
 		if err == os.ErrNotExist {
 			respond.ErrorWithStatus(w, "getPathHandler Open not exist: ", err, http.StatusNotFound)
@@ -90,22 +90,28 @@ func (svr *Server) getPathHandler(w http.ResponseWriter, r *http.Request) {
 		for i, fi := range fis {
 			fs[i] = urlEscapePath(filepath.Join(r.URL.Path, fi.Name()))
 		}
+		w.Header().Set("Content-Type", "application/json")
 		respond.OK(w, fs)
 		return
 	}
-	http.ServeContent(w, r, r.URL.Path, fi.ModTime(), f)
+	http.ServeContent(w, r, svr.ctx.PrependExposed(r.URL.Path), fi.ModTime(), f)
 }
 
 func urlEscapePath(p string) string {
-	ss := strings.Split(p, "/")
+	ss := strings.Split(p, string(os.PathSeparator))
 	for i, s := range ss {
 		ss[i] = url.PathEscape(s)
 	}
-	return strings.Join(ss, "/")
+	return strings.Join(ss, string(os.PathSeparator))
 }
 
 func (svr *Server) getAuthHandler(w http.ResponseWriter, r *http.Request) {
-	respond.OK(w, svr.ctx.StagedUsers.All())
+	type resp []struct {
+		key   string
+		value string
+	}
+
+	respond.OK(w, respond.MapToRespMap(svr.ctx.StagedUsers.All()))
 }
 
 func (svr *Server) putAuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,10 +122,17 @@ func (svr *Server) putAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if v, ok := body["key"]; ok {
 		if key, ok := v.(string); ok {
 			svr.ctx.StagedUsers.Delete(key)
-			svr.ctx.Users.Set(key, "1")
+
+			claim := "1"
+			if val, ok := body["claim"]; ok {
+				if c, ok := val.(string); ok {
+					claim = c
+				}
+			}
+			svr.ctx.Users.Set(key, claim)
 		}
 	}
-	respond.OK(w, svr.ctx.StagedUsers.All())
+	respond.OK(w, respond.MapToRespMap(svr.ctx.StagedUsers.All()))
 }
 
 func (svr *Server) postAuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +142,7 @@ func (svr *Server) postAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if v, ok := body["key"]; ok {
 		if key, ok := v.(string); ok {
-			svr.ctx.StagedUsers.Set(key, "1")
+			svr.ctx.StagedUsers.Set(key, "")
 		}
 	}
 	respond.OK(w, body)
@@ -191,6 +204,7 @@ func (svr *Server) showConfig() {
 	log.Info("Swagger spec path:", svr.ctx.SpecPath)
 	log.Info("Config path:", svr.ctx.ConfigPath)
 	log.Info("Users path:", svr.ctx.UsersPath)
+	log.Info("Expose path:", svr.ctx.ExposePath)
 	b, err := json.MarshalIndent(svr.ctx.Config, "", "  ")
 	if nil != err {
 		log.Fatal(svr.ctx.Exit, err)

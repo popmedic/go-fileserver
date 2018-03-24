@@ -9,7 +9,7 @@ import (
 )
 
 func OK(w http.ResponseWriter, obj interface{}) {
-	WithStatus(w, obj, http.StatusOK)
+	json.NewEncoder(w).Encode(obj)
 }
 
 func WithStatus(w http.ResponseWriter, obj interface{}, status int) {
@@ -33,4 +33,26 @@ func Unauthorized(w http.ResponseWriter, tag string) {
 
 func Unauthenticated(w http.ResponseWriter, tag string) {
 	ErrorWithStatus(w, tag, errors.New("Unauthenticated"), http.StatusUnauthorized)
+}
+
+func MapToRespMap(m map[string]string) []struct {
+	key   string
+	value string
+} {
+	res := make([]struct {
+		key   string
+		value string
+	}, len(m))
+	var i = 0
+	for k, v := range m {
+		res[i] = struct {
+			key   string
+			value string
+		}{
+			key:   k,
+			value: v,
+		}
+		i++
+	}
+	return res
 }

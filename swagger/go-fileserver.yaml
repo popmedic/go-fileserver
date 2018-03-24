@@ -1,30 +1,25 @@
-openapi: "3.0.0"
+swagger: "2.0"
 info:
   description: "A fileserver API"
   version: "0.0.1"
   title: "go-fileserver"
-servers:
-  - url: "{scheme}://{host}:{port}"
-    variables:
-      scheme:
-        default: "https"
-      host:
-        default: "localhost"
-      port:
-        default: "8443"
+  
+host: localhost:8443
+basePath: "/"
+schemes: 
+  - "https"
 paths:
-  /{path}:
+  /{pth}:
     get:
       tags:
         - "path"
       summary: "List the contents of a directory or retrieve file"
       parameters:
-        - name: "path"
-          in: "path"
+        - in: "path"
+          name: "pth"
           description: "Directory to list or file to return"
           required: true
-          schema:
-            type: "string"
+          type: "string"
       responses:
         200:
           description: "successful operation"
@@ -33,7 +28,9 @@ paths:
         404:
           description: "path not found"
         500:
-          $ref: "#/components/responses/500Error"
+          description: "unknown error"
+          schema:
+            $ref: "#/definitions/Error500"
       security:
         - bearerAuth: []
   /auth:
@@ -41,15 +38,13 @@ paths:
       tags:
         - "auth"
       summary: "List all pending authorizations"
+      produces:
+        - application/json
       responses:
         200:
           description: "successful operation"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  type: "string"
+          schema:
+            $ref: "#/definitions/HashMap"
         403:
           description: "Unauthorized for request"
       security:
@@ -58,14 +53,16 @@ paths:
       tags:
         - "auth"
       summary: "Requests authorization"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                key:
-                  type: "string"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: "key"
+          description: "key to stage for access"
+          schema:
+            $ref: "#/definitions/Key"
       responses:
         202:
           description: "successful operation, request will be processed later"
@@ -73,17 +70,21 @@ paths:
       tags:
         - "auth"
       summary: "Activiate a pending authorization"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                key:
-                  type: "string"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: "key"
+          description: "key to add for access"
+          schema:
+            $ref: "#/definitions/Key"
       responses:
         200:
           description: "successful operation"
+          schema:
+            $ref: "#/definitions/HashMap"
         403:
           description: "Unauthorized for request"
       security:
@@ -95,8 +96,8 @@ paths:
       parameters:
         - in: "query"
           name: "key"
-          schema:
-            type: "string"
+          type: "string"
+          description: "delete a key from access"
       responses:
         200:
           description: "successful operation"
@@ -104,18 +105,30 @@ paths:
           description: "Unauthorized for request"
       security:
         - bearerAuth: []
-components:
-  responses:
-    500Error:
-      description: "internal server error"
-      content:
-        application/json:
-          schema:
-            type: "object"
-            properties:
-              error: 
-                type: "string"
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
+definitions:
+  Error500:
+    description: "internal server error"
+    type: "object"
+    properties:
+      error: 
+        type: "string"
+  Key:
+    description: "Token key"
+    type: "object"
+    properties:
+      key:
+        type: "string"
+  HashMap:
+    description: "A hashmap (array of key/value pairs)"
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        key:
+          type: "string"
+        value:
+          type: "string"
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer

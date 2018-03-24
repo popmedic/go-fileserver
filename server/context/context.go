@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/popmedic/go-fileserver/server/auth"
 	"github.com/popmedic/go-fileserver/server/table"
@@ -44,6 +46,7 @@ type Context struct {
 	SpecPath   string
 	ConfigPath string
 	UsersPath  string
+	ExposePath string
 
 	Key         []byte
 	Cert        []byte
@@ -55,7 +58,15 @@ type Context struct {
 
 // NewContext creates a new Context using the file paths keyPath, certPath, specPath
 // setting Key, Cert, Spec respectively, using exit for Exit.
-func NewContext(keyPath, certPath, specPath, configPath, usersPath string, exit func(int)) *Context {
+func NewContext(
+	keyPath,
+	certPath,
+	specPath,
+	configPath,
+	usersPath,
+	exposePath string,
+	exit func(int),
+) *Context {
 	return &Context{
 		Exit:        exit,
 		KeyPath:     keyPath,
@@ -63,6 +74,7 @@ func NewContext(keyPath, certPath, specPath, configPath, usersPath string, exit 
 		SpecPath:    specPath,
 		ConfigPath:  configPath,
 		UsersPath:   usersPath,
+		ExposePath:  exposePath,
 		Key:         mustReadFile(exit, keyPath),
 		Cert:        mustReadFile(exit, certPath),
 		Spec:        mustReadFile(exit, specPath),
@@ -70,6 +82,23 @@ func NewContext(keyPath, certPath, specPath, configPath, usersPath string, exit 
 		Users:       mustReadTokenTable(usersPath, "{\""+defaultKey+"\":\""+defaultClaim+"\"}"),
 		StagedUsers: mustReadTokenTable(usersPath+".staged", "{}"),
 	}
+}
+
+func (c *Context) PrependExposed(path string) string {
+	return filepath.Clean(filepath.Join(c.ExposePath, path))
+}
+
+func (c *Context) TrimExposed(path string) string {
+	return func(s string) string {
+		s = strings.TrimRight(s, string(os.PathSeparator))
+		if len(s) == 0 {
+			s = "/"
+		}
+		if s[0] != os.PathSeparator {
+			s = string(os.PathSeparator) + s
+		}
+		return filepath.Clean(s)
+	}(strings.TrimLeft(path, c.ExposePath))
 }
 
 // MustReadFile will read in a file from path,
