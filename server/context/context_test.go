@@ -52,6 +52,7 @@ func TestNewContextFailure(t *testing.T) {
 			paths[2],
 			jsonPath,
 			usersPath,
+			"",
 			exitFunc,
 		)
 		if !success {
@@ -77,7 +78,7 @@ func TestNewContextConfigDefaultOpenFile(t *testing.T) {
 		success = true
 	}
 
-	c := NewContext(path, path, path, "*", usersPath, exitFunc)
+	c := NewContext(path, path, path, "*", usersPath, "", exitFunc)
 	if !isDefault(c.Config) {
 		t.Error("config should be default", c.Config)
 	}
@@ -93,7 +94,7 @@ func TestNewContextConfigFailureReadJSON(t *testing.T) {
 	defer func(p string) {
 		_ = os.Remove(p)
 	}(badJSONPath)
-	c := NewContext(path, path, path, badJSONPath, usersPath, exitFunc)
+	c := NewContext(path, path, path, badJSONPath, usersPath, "", exitFunc)
 	if !isDefault(c.Config) {
 		t.Error("config should be default", c.Config)
 	}
@@ -110,7 +111,7 @@ func TestNewContextConfigFailureReadUsers(t *testing.T) {
 	defer func(p string) {
 		_ = os.Remove(p)
 	}(badUsersPath)
-	c := NewContext(path, path, path, jsonPath, badUsersPath, exitFunc)
+	c := NewContext(path, path, path, jsonPath, badUsersPath, "", exitFunc)
 	if c.Users.Get(defaultKey) != defaultClaim {
 		t.Errorf("should have created default user %q at level %d", defaultKey, defaultClaim)
 	}
@@ -121,7 +122,7 @@ func TestNewContext(t *testing.T) {
 		t.Error("should not have failed:", path)
 	}
 
-	_ = NewContext(path, path, path, jsonPath, usersPath, exitFunc)
+	_ = NewContext(path, path, path, jsonPath, usersPath, "", exitFunc)
 }
 
 func createBadJSONFile(src, dest string, t *testing.T) {
@@ -135,5 +136,85 @@ func createBadJSONFile(src, dest string, t *testing.T) {
 	if nil != err {
 		t.Fatal(err)
 		return
+	}
+}
+
+func TestPrependExposed(t *testing.T) {
+	type row struct {
+		exposed string
+		given   string
+		exp     string
+	}
+	tt := []row{
+		row{
+			exposed: "test/this",
+			given:   "path/out",
+			exp:     "test/this/path/out",
+		},
+		row{
+			exposed: "/test/this",
+			given:   "/path/out/",
+			exp:     "/test/this/path/out",
+		},
+		row{
+			exposed: "/test/this/",
+			given:   "/path/out/",
+			exp:     "/test/this/path/out",
+		},
+		row{
+			exposed: "test/this/",
+			given:   "/path/out/",
+			exp:     "test/this/path/out",
+		},
+	}
+	for _, r := range tt {
+		ctx := &Context{ExposePath: r.exposed}
+		testExposed(t, ctx.PrependExposed, "PrependExposed", r.given, r.exp)
+	}
+}
+
+func TestTrimExposed(t *testing.T) {
+	type row struct {
+		exposed string
+		given   string
+		exp     string
+	}
+	tt := []row{
+		row{
+			exposed: "test/this",
+			given:   "test/this/path/out",
+			exp:     "/path/out",
+		},
+		row{
+			exposed: "/test/this/",
+			given:   "/test/this/path/out/",
+			exp:     "/path/out",
+		},
+		row{
+			exposed: "/test/this/",
+			given:   "test/this/path/out/",
+			exp:     "/path/out",
+		},
+		row{
+			exposed: "test/this/",
+			given:   "test/this///path/out/",
+			exp:     "/path/out",
+		},
+		row{
+			exposed: "/test/this/",
+			given:   "/path/out/",
+			exp:     "/path/out",
+		},
+	}
+	for _, r := range tt {
+		ctx := &Context{ExposePath: r.exposed}
+		testExposed(t, ctx.TrimExposed, "TrimExposed", r.given, r.exp)
+	}
+}
+
+func testExposed(t *testing.T, function func(string) string, name, given, exp string) {
+	got := function(given)
+	if got != exp {
+		t.Errorf("%s: given %q expected %q got %q", name, given, exp, got)
 	}
 }
