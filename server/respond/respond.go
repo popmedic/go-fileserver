@@ -36,21 +36,21 @@ func Unauthenticated(w http.ResponseWriter, tag string) {
 }
 
 func MapToRespMap(m map[string]string) []struct {
-	key   string
-	value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 } {
 	res := make([]struct {
-		key   string
-		value string
+		Key   string `json:"key"`
+		Value string `json:"value"`
 	}, len(m))
 	var i = 0
 	for k, v := range m {
 		res[i] = struct {
-			key   string
-			value string
+			Key   string `json:"key"`
+			Value string `json:"value"`
 		}{
-			key:   k,
-			value: v,
+			Key:   k,
+			Value: v,
 		}
 		i++
 	}

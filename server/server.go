@@ -142,7 +142,7 @@ func (svr *Server) postAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if v, ok := body["key"]; ok {
 		if key, ok := v.(string); ok {
-			svr.ctx.StagedUsers.Set(key, "")
+			svr.ctx.StagedUsers.Set(key, "1")
 		}
 	}
 	respond.OK(w, body)
@@ -169,7 +169,7 @@ func (svr *Server) createMux(ctx *context.Context) *http.ServeMux {
 func (svr *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			log.Debug("req:", r.URL.Path)
+			log.Debug("req:", r.URL.Path, r.Method)
 
 			next.ServeHTTP(w, r)
 		},

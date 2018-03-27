@@ -79,7 +79,7 @@ paths:
           name: "key"
           description: "key to add for access"
           schema:
-            $ref: "#/definitions/Key"
+            $ref: "#/definitions/HashSet"
       responses:
         200:
           description: "successful operation"
@@ -118,16 +118,19 @@ definitions:
     properties:
       key:
         type: "string"
-  HashMap:
-    description: "A hashmap (array of key/value pairs)"
-    type: "array"
-    items:
-      type: "object"
-      properties:
+  HashSet:
+    description: "A hashset (key/value pair)"
+    type: "object"
+    properties:
         key:
           type: "string"
         value:
           type: "string"
+  HashMap:
+    description: "A hashmap (array of key/value pairs)"
+    type: "array"
+    items:
+      $ref: "#/definitions/HashSet" 
 securitySchemes:
   bearerAuth:
     type: http
