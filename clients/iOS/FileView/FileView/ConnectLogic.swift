@@ -53,7 +53,9 @@ class ConnectLogic: Logic {
     var key:String {
         get {
             if let key = getKeyFromHistory(self.host) {
-                return key
+                if key.count > 0 {
+                    return key
+                }
             }
             self.setKeyInHistory(self.host, key: String.random())
             return self.getKeyFromHistory(self.host) ?? ""
