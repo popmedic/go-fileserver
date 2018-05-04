@@ -8,11 +8,12 @@
 ## Objective
 
 Create a simple file server in go with complete deployment in bash.  The file server servers content as a RESTful HTTP server over SSL/TSL.  The build scripts will:
-- create self-signed certificates if they do not exist.
-- generate server stubs from Swagger with `swagger-codegen` if they do not already exist.
-- generating a configuration and user
-- deploy the build into a Docker container
-- run the Docker container locally
+- [create self-signed certificates if they do not exist.](https://github.com/popmedic/go-fileserver/blob/master/create_certs.sh)
+- [generate server stubs from Swagger with `swagger-codegen` if they do not already exist.](https://github.com/popmedic/go-fileserver/blob/master/gen_swagger_svr.sh)
+- [generating a configuration and user](https://github.com/popmedic/go-fileserver/blob/master/build_config.sh)
+- [builds the go server](https://github.com/popmedic/go-fileserver/blob/master/build_fileserver.sh)
+- [deploy the build into a Docker container](https://github.com/popmedic/go-fileserver/blob/master/build_docker.sh)
+- [run the Docker container locally](https://github.com/popmedic/go-fileserver/blob/master/run.sh)
 
 The client is just a cute little iOS app that will authenticate/authorize with the server, and if authorized to do so, show the files exposed by the server.
 
@@ -28,7 +29,7 @@ The client is just a cute little iOS app that will authenticate/authorize with t
 
 ### Test
 
-To test the Go server, run the test script with:
+To test the Go server, run the [test script](https://github.com/popmedic/go-fileserver/blob/master/test.sh) with:
 
 ```
 ./test
@@ -44,7 +45,7 @@ additional arguments can be passed into the tests from the commandline, as is do
 
 > Dependency: Tests pass
 
-Building the server includes: creating certs if they do not exist; generating the server stubs from Swagger; adding a default admin user and config file; and building a docker image.  To run the build process:
+Building the server includes: creating certs if they do not exist; generating the server stubs from Swagger; adding a default admin user and config file; and building a docker image.  To run the [build process](https://github.com/popmedic/go-fileserver/blob/master/build.sh):
 
 ```
 ./build.sh
@@ -54,7 +55,7 @@ Building the server includes: creating certs if they do not exist; generating th
 
 > Dependency: Tests pass, Build succeeds
 
-To run the build locally:
+To [run](https://github.com/popmedic/go-fileserver/blob/master/run.sh) the build locally:
 
 ```
 ./run.sh
