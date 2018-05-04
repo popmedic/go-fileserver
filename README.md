@@ -1,4 +1,4 @@
-#go-fileserver
+# go-fileserver
 
 > A simple file server done in go, with a neat iOS client.
 
