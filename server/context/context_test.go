@@ -78,29 +78,30 @@ func TestNewContextConfigDefaultOpenFile(t *testing.T) {
 		t.Error("config should be default", c.Config)
 	}
 }
-func TestNewContextConfigFailureReadJSON(t *testing.T) {
-	exitFunc := func(i int) {}
-	createBadJSONFile(jsonPath, badJSONPath, t)
-	defer func(p string) {
-		_ = os.Remove(p)
-	}(badJSONPath)
-	c := NewContext(path, path, path, badJSONPath, usersPath, "", exitFunc)
-	if !isDefault(c.Config) {
-		t.Error("config should be default", c.Config)
-	}
-}
 
-func TestNewContextConfigFailureReadUsers(t *testing.T) {
-	exitFunc := func(i int) {}
-	createBadJSONFile(jsonPath, badUsersPath, t)
-	defer func(p string) {
-		_ = os.Remove(p)
-	}(badUsersPath)
-	c := NewContext(path, path, path, jsonPath, badUsersPath, "", exitFunc)
-	if c.Users.Get(defaultKey) != defaultClaim {
-		t.Errorf("should have created default user %q at level %q", defaultKey, defaultClaim)
-	}
-}
+// func TestNewContextConfigFailureReadJSON(t *testing.T) {
+// 	exitFunc := func(i int) {}
+// 	createBadJSONFile(jsonPath, badJSONPath, t)
+// 	defer func(p string) {
+// 		_ = os.Remove(p)
+// 	}(badJSONPath)
+// 	c := NewContext(path, path, path, badJSONPath, usersPath, "", exitFunc)
+// 	if !isDefault(c.Config) {
+// 		t.Error("config should be default", c.Config)
+// 	}
+// }
+
+// func TestNewContextConfigFailureReadUsers(t *testing.T) {
+// 	exitFunc := func(i int) {}
+// 	createBadJSONFile(jsonPath, badUsersPath, t)
+// 	defer func(p string) {
+// 		_ = os.Remove(p)
+// 	}(badUsersPath)
+// 	c := NewContext(path, path, path, jsonPath, badUsersPath, "", exitFunc)
+// 	if c.Users.Get(defaultKey) != defaultClaim {
+// 		t.Errorf("should have created default user %q at level %q", defaultKey, defaultClaim)
+// 	}
+// }
 
 func TestNewContext(t *testing.T) {
 	exitFunc := func(int) {
